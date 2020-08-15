@@ -16,7 +16,7 @@ from flask import Response, stream_with_context
 app = Flask(__name__)
 app.debug = True
 
-url = os.getenv('REDISCLOUD_URL')
+url = os.getenv('REDIS_URL')
 if url:
     db = redis.Redis.from_url(url)
 else: 
