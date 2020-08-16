@@ -4,56 +4,59 @@
 # pip install flask
 # pip install redis
 
-from flask import Flask
-from flask import request
-import flask
+from sanic import Sanic
+from sanic import response
+from sanic.response import json
+import requests
+import requests
 import redis
 import time
 import json
 import os
-from flask import Response, stream_with_context
+from provider import get_weather
 
-app = Flask(__name__)
-app.debug = True
+TTL = 36400 #one day
 
-url = os.getenv('REDIS_URL')
-if url:
-    db = redis.Redis.from_url(url)
-else: 
-    db = redis.Redis('localhost') #connect to server
 
-ttl = 31104000 #one year
-
-def isInt(s):
+def get_redis():
     try:
-        int(s)
-        return True
-    except ValueError:
-        return False
+        url = os.getenv('REDIS_URL')
+        if url:
+            db = redis.Redis.from_url(url)
+        else: 
+            db = redis.Redis(host='localhost') #connect to server
+        return db
+    except:
+        print("could not connect to redis")
+        sys.exit(1)
 
-@app.route('/', defaults={'path': ''}, methods = ['PUT', 'GET'])
-@app.route('/<path:path>', methods = ['PUT', 'GET'])
-def home(path):
+api_key = os.environ.get("API_KEY")
+app = Sanic(__name__)
+app.debug = True
+db = get_redis()
 
-    if (request.method == 'PUT'):
-        event = request.json
-        print(event)
-        event['last_updated'] = int(time.time())
-        event['ttl'] = ttl
-        db.delete(path) #remove old keys
-        db.hmset(path, event)
-        db.expire(path, ttl)
-        return json.dumps(event), 201
+@app.get("/health")
+async def health(request):
+    try:
+        pong = db.get("test")
+        return response.json({"status":"OK"})
+    except Exception as e:
+        return response.json({"status":f"Error: {e}"})
 
-    if not db.exists(path):
-        return "Error: thing doesn't exist"
+@app.get("/weather/<city>")
+async def home(request, city):
 
-    event = db.hgetall(path)
-    event["ttl"] = db.ttl(path)
-    #cast integers accordingly, nested arrays, dicts not supported for now  :(
-    dict_with_ints = dict((k,int(v) if isInt(v) else v) for k,v in event.iteritems())
-    return json.dumps(dict_with_ints), 200
+    weather_json = db.get(city)
+    print(weather_json)
+    if not weather_json:
+        status, weather, err = get_weather(city, api_key)
+        if err:
+            return response.json({"error":"Could not get weather"})
+        weather_json = json.dumps(weather)
+        db.set(city, weather_json)
+    return response.json(weather_json)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=8000)
+    

@@ -1,32 +1,26 @@
-# An example microservice using Flask and Redis.
+# An example microservice using Sanic and Redis.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
-This is
+Boilerplate
 
 ## Dependencies:
 
-* Python >2.7
-* Flask
+* Python3
 * Redis
 
 To install dependencies run:
 
 ```
-pip install flask
-pip install redis
+pip install -r requirements.txt
+
 ```
 
 To run the tests run:
 
-```
-python app_tests.py
-```
 
 To run the application:
 
 ```
-python app.py
+API_KEY=<your key> python app.py
 ```
 
 
