@@ -14,8 +14,7 @@ import time
 import json
 import os
 from provider import get_weather
-
-TTL = 36400 #one day
+from settings import *
 
 
 def get_redis():
@@ -45,18 +44,21 @@ async def health(request):
 
 @app.get("/weather/<city>")
 async def home(request, city):
-
-    weather_json = db.get(city)
-    print(weather_json)
-    if not weather_json:
+    key = f"{CACHE_PREFIX}-{city}"
+    weather = db.get(key) #conider pickle or some other serialization
+    
+    if not weather:
         status, weather, err = get_weather(city, api_key)
         if err:
             return response.json({"error":"Could not get weather"})
-        weather_json = json.dumps(weather)
-        db.set(city, weather_json)
-    return response.json(weather_json)
+        
+        db.set(key, json.dumps(weather), ex=TTL)
+    else:
+        weather = json.loads(weather)
+    return response.json(weather)
 
 
 if __name__ == "__main__":
+    
     app.run(host="0.0.0.0", port=8000)
     
