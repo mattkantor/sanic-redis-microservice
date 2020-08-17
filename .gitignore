@@ -1,5 +1,6 @@
 *.pyc
 .venv
-thing.json
-curl.txt
 env
+dump.rdb
+__pycache__
+
