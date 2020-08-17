@@ -40,6 +40,10 @@ app = Sanic(__name__)
 app.debug = True
 db = get_redis()
 
+@app.get("/")
+async def home(request):
+    return response.json({"hello":True})
+
 @app.get("/health")
 async def health(request):
     try:
@@ -65,10 +69,4 @@ async def home(request, city):
     return response.json(weather)
 
 
-if __name__ == "__main__":
-    try:
-        app.run(host="0.0.0.0", port=8000)
-    except:
-        logger.error(f"Could not start service : {e}")
-        
-    
+   

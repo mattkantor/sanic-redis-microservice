@@ -22,7 +22,7 @@ pip install -r requirements.txt
 To run the application:
 
 ```
-API_KEY=<your key> python app.py
+API_KEY=<your key> python3 .
 ```
 
 # TODO: 
