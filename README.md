@@ -22,7 +22,8 @@ pip install -r requirements.txt
 To run the application:
 
 ```
-API_KEY=<your key> python3 .
+$ redis-server &
+$ API_KEY=<your key> python3 .
 ```
 
 # TODO: 
