@@ -1,5 +1,5 @@
 import requests
-
+from sanic.log import logger
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/forecast?q=%s&appid=%s"
 
@@ -21,5 +21,5 @@ def get_weather(city, api_key):
         weather = dict(city=city, coord=coord, country=country, temp = k2c(temp))
         return True, weather, None
     except Exception as e:
-        print(e)
+        logger.error(f" Provider error:{e}")
         return False, (), e

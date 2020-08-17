@@ -12,9 +12,12 @@ import requests
 import redis
 import time
 import json
+import sys
 import os
-from provider import get_weather
 from settings import *
+from sanic.log import logger
+
+from provider import get_weather
 
 
 def get_redis():
@@ -24,8 +27,11 @@ def get_redis():
             db = redis.Redis.from_url(url)
         else: 
             db = redis.Redis(host='localhost') #connect to server
+        
+        db.get("test")
         return db
-    except:
+    except Exception as e:
+        logger.error(f"Could not start Redis: {e}")
         print("could not connect to redis")
         sys.exit(1)
 
@@ -40,6 +46,7 @@ async def health(request):
         pong = db.get("test")
         return response.json({"status":"OK"})
     except Exception as e:
+        logger.error(f"Error with health check service: {e}")
         return response.json({"status":f"Error: {e}"})
 
 @app.get("/weather/<city>")
@@ -59,6 +66,9 @@ async def home(request, city):
 
 
 if __name__ == "__main__":
-    
-    app.run(host="0.0.0.0", port=8000)
+    try:
+        app.run(host="0.0.0.0", port=8000)
+    except:
+        logger.error(f"Could not start service : {e}")
+        
     

@@ -1,6 +1,6 @@
 # An fast simple example microservice using Sanic and Redis.
 
-Boilerplate code.
+Boilerplate code for a microservice.  
 
 ## Dependencies:
 
@@ -16,8 +16,6 @@ pip install -r requirements.txt
 
 ```
 
-
-
 To run the application:
 
 ```
@@ -26,4 +24,5 @@ API_KEY=<your key> python app.py
 
 # TODO: 
 - tests
+- wrap server depenencies in a struct (depinj)
 - refactor provider to have common interface 
